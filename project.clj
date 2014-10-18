@@ -1,8 +1,8 @@
 (defproject org.clojure.gaverhae/okku "0.1.3"
   :description "Clojure wrapper around the Akka library."
-  :dependencies [[org.clojure/clojure "1.4.0"]
-                 [com.typesafe.akka/akka-actor "2.0.2"]
-                 [com.typesafe.akka/akka-remote "2.0.2"]
-                 [com.typesafe.akka/akka-kernel "2.0.2"]]
+  :dependencies [[org.clojure/clojure "1.6.0"]
+                 [com.typesafe.akka/akka-actor_2.10 "2.3.6"]
+                 [com.typesafe.akka/akka-remote_2.10 "2.3.6"]
+                 [com.typesafe.akka/akka-kernel_2.10 "2.3.6"]]
   :repositories {"Typesafe Repository" "http://repo.typesafe.com/typesafe/releases/"}
   )
