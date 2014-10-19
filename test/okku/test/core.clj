@@ -69,3 +69,6 @@
        ["akka" "sys" "hn" "port" ["path1" "path2"]]
        ["akka" nil nil "port" nil]
        ["other" "sys" "hn" "other" ["path1" "path2"]]))
+
+(deftest test-actor
+  (is (= akka.actor.Props (type (actor (onReceive []))))))

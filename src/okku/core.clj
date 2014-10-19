@@ -170,7 +170,7 @@
   passed to the .actorOf method of an ActorSystem, or similarly that can be used
   as the first argument to spawn."
   [& forms]
-  `(Props. (proxy [UntypedActorFactory] []
+  `(Props/create (proxy [UntypedActorFactory] []
              (~'create []
                (proxy [UntypedActor] []
                  ~@forms)))))
