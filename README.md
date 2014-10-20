@@ -1,12 +1,8 @@
-# Leiningen
+# Okku
 
-```clojure
-[org.clojure.gaverhae/okku "0.1.3"]
-```
-
-Okku is primarily developped and tested on Clojure 1.4. It has been
-occasionally tested on 1.2 and 1.3, and it seems to work fine. Do not hesitate
-to report any incompatibility.
+This repository is a fork of the [main okku repository](https://github.com/gaverhae/okku),
+modified to work with [Akka](http://akka.io) 2.3.6. I'm in the process of putting
+together a pull request to merge these changes back into okku.
 
 # Introduction
 
@@ -15,6 +11,24 @@ Scala library implementing the Actor model for concurrency and distribution.
 
 For explanations on the Actor model itself and how and when to use it, see the
 documentation of either Akka or Erlang.
+
+# Installation
+
+Since this version of okku is a branch, until it gets merged with the main project
+you'll need to use [git-deps](https://github.com/tobyhede/lein-git-deps) to integrate
+it into your project. Just add the following lines to your `project.clj`:
+
+```clojure
+  :plugins [[lein-git-deps  "0.0.1-SNAPSHOT"]]
+  :source-paths [".lein-git-deps/okku/src" "src"]
+  :git-dependencies [["https://github.com/jacklund/okku.git"]]
+```
+
+Then, before running your project for the first time, type:
+
+```
+$ lein git-deps
+```
 
 # Usage
 
