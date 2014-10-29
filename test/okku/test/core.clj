@@ -28,3 +28,32 @@
 
 (deftest test-actor
   (is (= akka.actor.Props (type (actor (onReceive []))))))
+
+(deftest test-look-up
+  (let [actor-system (okku.core/actor-system "test" :local true)
+        actor (okku.core/spawn (okku.core/actor (onReceive [msg])) :in actor-system :name "foo")]
+    (is (= actor (okku.core/look-up "/user/foo" :in actor-system)))))
+
+(deftest test-select-resolve-one
+  (let [actor-system (okku.core/actor-system "test" :local true)
+        actor (okku.core/spawn (okku.core/actor (onReceive [msg])) :in actor-system :name "foo")
+        timeout (okku.core/timeout 1 seconds)]
+    (is (= actor
+           (okku.core/await-future
+             (okku.core/resolve-one
+               (okku.core/select "/user/foo" :in actor-system)
+               timeout)
+             timeout)))))
+
+(deftest test-select-identify
+  (let [actor-system (okku.core/actor-system "test" :local true)
+        actor (okku.core/spawn (okku.core/actor (onReceive [msg] (prn msg))) :in actor-system :name "foo")
+        timeout (okku.core/timeout 1 seconds)]
+    (is (= actor
+           (okku.core/get-ref
+             (okku.core/await-future
+               (okku.core/identify
+                 (okku.core/select "/user/foo" :in actor-system)
+                 1
+                 timeout)
+               timeout))))))

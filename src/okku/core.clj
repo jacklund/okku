@@ -1,11 +1,15 @@
 (ns okku.core
   "Library to facilitate the definition and creation of Akka actors from
   Clojure."
-  (:import [akka.actor ActorRef ActorSystem Props UntypedActor
+  (:import [akka.actor ActorRef ActorSystem Props UntypedActor Identify
             UntypedActorFactory Deploy Address AddressFromURIString]
+           [akka.pattern AskableActorSelection]
            [akka.routing RoundRobinRouter]
            [akka.remote RemoteScope]
-           [com.typesafe.config ConfigFactory])
+           [com.typesafe.config ConfigFactory]
+           [akka.util Timeout]
+           [scala.concurrent Await]
+           [java.util.concurrent TimeUnit])
   (:require clojure.string))
 
 (defn round-robin-router
@@ -121,6 +125,38 @@
   [address & {s :in}]
   (if-not s (throw (IllegalArgumentException. "okku.core/look-up needs an :in argument")))
   (.actorFor s address))
+
+(defn select
+  [address & {s :in}]
+  (if-not s (throw (IllegalArgumentException. "okku.core/look-up needs an :in argument")))
+  (AskableActorSelection. (.actorSelection s address)))
+
+(def days         TimeUnit/DAYS)
+(def hours        TimeUnit/HOURS)
+(def minutes      TimeUnit/MINUTES)
+(def seconds      TimeUnit/SECONDS)
+(def milliseconds TimeUnit/MILLISECONDS)
+(def microseconds TimeUnit/MICROSECONDS)
+(def nanoseconds  TimeUnit/NANOSECONDS)
+
+(defn timeout [t unit]
+  (Timeout. t unit))
+
+(defn resolve-one
+  [selection timeout]
+  (.resolveOne (.actorSel selection) timeout))
+
+(defn await-future
+  [fut timeout]
+  (Await/result fut (.duration timeout)))
+
+(defn identify
+  [selection id timeout]
+  (.ask selection (Identify. id) timeout))
+
+(defn get-ref
+  [ident]
+  (.getRef ident))
 
 (defmacro stop
   "Simple helper macro to access the stop method of the current actor."
