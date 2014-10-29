@@ -90,39 +90,56 @@ the Okku jar is in your classpath:
       echo-actor (spawn (actor (onReceive [msg]
                                  (println msg)))
                         :in as)]
-  (.tell echo-actor "Testing...")
-  (.tell echo-actor ["more" {"complex" "object"}]))
+  (tell echo-actor "Testing...")
+  (tell echo-actor ["more" {"complex" "object"}]))
 ```
 
 One restriction of the Akka model is that messages between actors have to be
 immutable objects. This is the default for Clojure values, but it's still
 important to bear in mind.
 
+## Actor Lookup
+Okku provides the `look-up` function to look up an actor by its address using
+`actorFor`.
+
+```clojure
+(use `okku.core)
+(let [as (actor-system "test")
+      echo-actor (spawn (actor (onReceive [msg]
+                                 (println msg)))
+                        :in as
+                        :name "echo")
+      actor-ref (look-up "/user/echo" :in as)]
+  (tell actor-ref "Hello?"))
+```
+
+However, this method is deprecated currently in Akka, in favor
+of using `ActorSelection`. This may be accomplished using the `select`
+function, which returns an `ActorSelection` object. Once you have that, you
+can resolve the `ActorRef` either via `resolve-one`, which returns a future
+pointing to the `ActorRef`, or by sending an "identify" message using `identify`.
+
+However, you don't really have to do any of that. If you just want to send a message
+to the actor(s) in question, you can just call `tell` on the `ActorSelection`,
+and the actor(s) will get the message.
+
+Additionally, this allows you to broadcast to multiple actors using wildcards
+in your selection:
+
+```clojure
+(use `okku.core)
+(let [actor-system (okku.core/actor-system "test" :local true)
+      a (okku.core/spawn (okku.core/actor (onReceive [msg] (prn msg))) :in actor-system :name "foo")
+      b (okku.core/spawn (okku.core/actor (onReceive [msg] (prn msg))) :in actor-system :name "bar")]
+  (tell
+    (okku.core/select "/user/*" :in actor-system)
+    "Foo!"))
+```
+
 ## Configuration through configuration file
 
 Configuration through ``application.conf`` is supported by Akka, and thus by
 Okku. See the [Akka documentation](http://akka.io/docs/) for details.
-
-One note of interest: the Okku system adds the possibility of changing the
-look-up address for a remote actor through configuration, which is not directly
-supported by Akka (though it is not hard to do through accessing the
-configuration object, which is exactly what Okku does).
-
-To avoid polluting the ``akka`` "namespace" in the configuration file, Okku
-adds an ``okku.lookup`` namespace for actor look-up. Supported configuration
-options are:
-```
-okku.lookup.<actor path> {
-  protocol
-  actor-system
-  hostname
-  port
-  path
-}
-```
-
-If the path does not begin with a "/", Okku will automaticall add "/user/" in
-front of it.
 
 # License
 
