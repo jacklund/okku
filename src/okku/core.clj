@@ -129,7 +129,7 @@
 (defn select
   [address & {s :in}]
   (if-not s (throw (IllegalArgumentException. "okku.core/look-up needs an :in argument")))
-  (AskableActorSelection. (.actorSelection s address)))
+  (.actorSelection s address))
 
 (def days         TimeUnit/DAYS)
 (def hours        TimeUnit/HOURS)
@@ -144,7 +144,7 @@
 
 (defn resolve-one
   [selection timeout]
-  (.resolveOne (.actorSel selection) timeout))
+  (.resolveOne selection timeout))
 
 (defn await-future
   [fut timeout]
@@ -152,7 +152,7 @@
 
 (defn identify
   [selection id timeout]
-  (.ask selection (Identify. id) timeout))
+  (.ask (AskableActorSelection. selection) (Identify. id) timeout))
 
 (defn get-ref
   [ident]
