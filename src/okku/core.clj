@@ -115,47 +115,12 @@
     (if n `(.actorOf ~c ~p ~n)
       `(.actorOf ~c ~p))))
 
-(defn- string-to-vec
-  "Converts an address in string form to the corresponding vector form"
-  [a] (let [v (clojure.string/split a #"://|@|:|/")]
-        (conj (vec (take 4 v)) (drop 4 v))))
-
-(defn- vec-to-string
-  "Converts an address in vector form to its string representation"
-  [a] (let [a (vec a)]
-        (format "%s://%s@%s:%s/%s" (a 0) (a 1) (a 2) (a 3)
-                (clojure.string/join "/" (a 4)))))
-
-(defn- get-config-lookup
-  "Extracts the configuration for an actor lookup from the configuration file.
-  Returns it as a vector in the format expected by merge-addresses and vec-to-string."
-  [config name]
-  (let [c (get-in config ["okku" "lookup" (str "/" name)])
-        extract (fn [k] (if-let [v (get c k)] (.unwrapped v)))]
-    [(extract "protocol") (extract "actor-system")
-     (extract "hostname") (extract "port")
-     (if-let [ps (extract "path")]
-       (let [p (clojure.string/split ps #"/")]
-         (if (= (first p) "")
-           (rest p)
-           (cons "user" p))))]))
-
-(defn- merge-addresses
-  "Merges two addresses given in vector form `[prot sys hn port & path]`."
-  [a1 a2] (map #(if % % %2) a1 a2))
-
 (defn look-up
   "Returns an ActorRef for the specified actor path.
-  :in specifies the ActorSystem in which to create the ActorRef
-  :name is a local name for the actor, used to allow for file-based
-  configuration of the look-up path."
-  [address & {s :in n :name}]
+  :in specifies the ActorSystem in which to create the ActorRef"
+  [address & {s :in}]
   (if-not s (throw (IllegalArgumentException. "okku.core/look-up needs an :in argument")))
-  (let [code-address-v (string-to-vec address)
-        config-address-v (get-config-lookup (.. s settings config root) n)
-        address-v (merge-addresses config-address-v code-address-v)
-        address (vec-to-string address-v)]
-    (.actorFor s address)))
+  (.actorFor s address))
 
 (defmacro stop
   "Simple helper macro to access the stop method of the current actor."
