@@ -58,6 +58,17 @@
                  timeout)
                timeout))))))
 
+(deftest test-select-broadcast
+  (let [actor-system (okku.core/actor-system "test" :local true)
+        cnt (atom 0)
+        a (okku.core/spawn (okku.core/actor (onReceive [msg] (swap! cnt inc))) :in actor-system :name "foo")
+        b (okku.core/spawn (okku.core/actor (onReceive [msg] (swap! cnt inc))) :in actor-system :name "bar")]
+    (tell
+      (okku.core/select "/user/*" :in actor-system)
+      "Foo!")
+    (Thread/sleep 500)
+    (is (= 2 @cnt))))
+
 (deftest test-!
   (let [actor-system (okku.core/actor-system "test" :local true)
         value (atom nil)

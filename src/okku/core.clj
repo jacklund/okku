@@ -127,6 +127,8 @@
   (.actorFor s address))
 
 (defn select
+  "Performs an actorSelection for the given address.
+  :in specifies the ActorSystem in which to do the selection"
   [address & {s :in}]
   (if-not s (throw (IllegalArgumentException. "okku.core/look-up needs an :in argument")))
   (.actorSelection s address))
@@ -139,22 +141,30 @@
 (def microseconds TimeUnit/MICROSECONDS)
 (def nanoseconds  TimeUnit/NANOSECONDS)
 
-(defn timeout [t unit]
+(defn timeout
+  "Specify a timeout"
+  [t unit]
   (Timeout. t unit))
 
 (defn resolve-one
+  "Performs a resolveOne on a selection.
+  Returns either a future containing an ActorRef (to be resolved using await-future),
+  or throws an ActorNotFound exception if not found"
   [selection timeout]
   (.resolveOne selection timeout))
 
 (defn await-future
+  "Await a future for the given timeout"
   [fut timeout]
   (Await/result fut (.duration timeout)))
 
 (defn identify
+  "Used to identify an actor selection."
   [selection id timeout]
   (.ask (AskableActorSelection. selection) (Identify. id) timeout))
 
 (defn tell
+  "Send an actor a message"
   ([a msg]
   (tell a msg nil))
 
