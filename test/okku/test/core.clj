@@ -50,10 +50,20 @@
         actor (okku.core/spawn (okku.core/actor (onReceive [msg] (prn msg))) :in actor-system :name "foo")
         timeout (okku.core/timeout 1 seconds)]
     (is (= actor
-           (okku.core/get-ref
+           (.getRef
              (okku.core/await-future
                (okku.core/identify
                  (okku.core/select "/user/foo" :in actor-system)
                  1
                  timeout)
                timeout))))))
+
+(deftest test-!
+  (let [actor-system (okku.core/actor-system "test" :local true)
+        value (atom nil)
+        a (okku.core/spawn (okku.core/actor (onReceive [msg] (reset! value msg))) :in actor-system :name "foo")
+        b (okku.core/spawn (okku.core/actor (onReceive [msg] (! a msg))) :in actor-system :name "bar")
+        msg "Foo!"]
+    (okku.core/tell b msg)
+    (Thread/sleep 500)
+    (is (= msg @value))))

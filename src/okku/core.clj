@@ -66,8 +66,8 @@
 (defmacro !
   "Sends the msg value as a message to target, or to current sender if target
   is not specified. Can only be used inside an actor."
-  ([msg] `(.tell (.getSender ~'this) ~msg (.getSelf ~'this)))
-  ([target msg] `(.tell ~target ~msg (.getSelf ~'this))))
+  ([msg] `(tell (.getSender ~'this) ~msg (.getSelf ~'this)))
+  ([target msg] `(tell ~target ~msg (.getSelf ~'this))))
 
 (defmacro dispatch-on
   "Bascially expands to a cond with an equality test on the dispatch value dv,
@@ -154,9 +154,12 @@
   [selection id timeout]
   (.ask (AskableActorSelection. selection) (Identify. id) timeout))
 
-(defn get-ref
-  [ident]
-  (.getRef ident))
+(defn tell
+  ([a msg]
+  (tell a msg nil))
+
+  ([a msg self]
+  (.tell a msg self)))
 
 (defmacro stop
   "Simple helper macro to access the stop method of the current actor."
